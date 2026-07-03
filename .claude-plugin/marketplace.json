@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "opus-on-call",
+  "description": "Cost-efficient model-routing playbook for Claude Code sessions.",
+  "owner": {
+    "name": "davidvlvcm",
+    "url": "https://github.com/davidvlvcm"
+  },
+  "plugins": [
+    {
+      "name": "opus-on-call",
+      "description": "Sonnet orchestrator, Opus for reasoning only. Cuts cache_read cost by keeping the long-lived session on a cheap model.",
+      "source": "./",
+      "category": "productivity"
+    }
+  ]
+}
