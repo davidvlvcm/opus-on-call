@@ -23,21 +23,31 @@ Why: the dominant token cost is `cache_read` — the accumulating context re-rea
 - Delegate reasoning to **Opus subagents**. They run in isolated context and return only their final message, so your main context stays lean.
 - Delegate noisy/bulky mechanical output (verbose command output, large reads) to **Sonnet or Haiku subagents** that return a short summary instead of the raw content.
 - Keep the main thread small: targeted reads, CKG line-ranges, and delegation over pulling large content inline.
+- When a task sits on the line between mechanical and reasoning, treat it as reasoning and delegate — the default leans to escalation (see Route by task).
 
 ## Route by task
 
-**Handle inline (Sonnet):**
+**Default: if a task carries any judgment, escalate it.** Inline is the narrow exception — it applies only when the task matches the mechanical allowlist below. When you can't cleanly place a task, that uncertainty *is* the signal: escalate.
+
+Why lean this hard toward escalating: an Opus subagent runs in isolated context and returns only its final message, so even an unnecessary one costs a single bounded burst and never touches the main `cache_read`. That is far cheaper than the failure it prevents — reasoning inline on Sonnet when the task deserved Opus. A false escalation wastes a little; a missed one silently degrades the decision. Bias to the cheap mistake.
+
+**Mechanical allowlist — inline (Sonnet), do not escalate:**
 - edits, refactors, mechanical or repetitive changes
 - git/build/test ops and running commands whose output is already small or structured
-- applying an already-decided plan
+- applying an already-decided plan or spec
 - "find / check X" lookups
-- anything you can filter yourself in one shell command (`grep`, `jq`, `| tail`) — a subagent hop costs spin-up + context re-init, so don't reach for one when a pipe does the job
+- anything you can filter yourself in one shell command (`grep`, `jq`, `| tail`) — a hop costs spin-up + context re-init, so don't reach for one when a pipe does the job
 
-**Escalate to an Opus subagent:**
+**Everything else → Opus.** Treat this list as illustrations of the default, not its boundary:
 - architecture and design trade-offs
 - ambiguous requirements needing judgment
 - tricky multi-file debugging (root-cause reasoning)
 - review judgment / risk calls
+- any moment you catch yourself about to "just think through" a non-trivial call inline
+
+Route a judgment task by whether it packages:
+- **Packageable** — a self-contained prompt can carry it → **Opus subagent** (recipe below).
+- **Context-entangled** — it leans on so much live session state that packaging would lose too much → **ask the user to `/model opus`** for that burst (see Context-entangled decisions). Forcing it through a subagent yields a lossy spec and a re-escalation; don't.
 
 **Delegate to a Sonnet/Haiku summarizer subagent:**
 - verbose build/test/lint runs, large diffs, big file reads, sprawling grep/CKG dumps — where the raw content isn't needed, only a verdict or short digest
@@ -79,9 +89,19 @@ Effort (`low`/`medium`/`high`/`xhigh`/`max`) is a separate lever from model choi
 
 If a decision depends on so much live session state that packaging it would lose too much, ask the user to `/model opus` for that burst, then `/model sonnet` back — you cannot switch your own model. Trade-off: full fidelity, but pays the Opus rate on the whole context for those turns.
 
+## Staying anchored
+
+This skill loads once, when you invoke it, then sits at the top of a context that only grows — so its pull fades over a long session and the failure is silent: you slide back to reasoning inline without noticing. Two backstops:
+
+- **Self-check.** Before finalizing any response where you worked through a non-trivial decision, ask: *did I just reason inline on something that belonged to the escalate default?* A yes means you've drifted — route the next such task instead of rationalizing the miss.
+- **Re-injection.** This plugin ships a `UserPromptSubmit` hook that re-states the routing rule each turn while the mode is active (turned on by invoking `/opus-on-call`, cleared by `/opus-on-call off`). The self-check decays along with everything else; only re-injection from outside the growing context reliably re-anchors. Keep the hook enabled.
+
 ## Discipline
 
-- Escalate infrequently and batch related questions — each hop costs spin-up + context re-init.
+Two kinds of hop pull in opposite directions — don't let the caution for one bleed onto the other:
+
+- **Reasoning hops (→ Opus): lean toward spinning up.** The isolated burst is cheap, and not reasoning inline on Sonnet is the entire point. *Batch* genuinely-related questions into one subagent for fidelity — but batching is for coherence, not frequency-rationing. Never skip, defer, or downgrade a needed escalation just to hold the hop count down.
+- **Mechanical / summarizer / search hops: a pipe beats a subagent.** Here spin-up + context re-init is real overhead that often exceeds the work itself. Don't spawn a subagent for what `grep`/`jq`/`| tail` does inline; deterministic data crunching (parsing, counting, aggregation) → write a script.
+
 - Subagents cannot ask the user questions mid-run; give them enough to not block.
-- Deterministic data crunching (parsing, counting, aggregation) → write a script, not a subagent.
-- Reserve Opus subagents for reasoning only.
+- Reserve Opus subagents for reasoning — never for search or mechanical extraction.

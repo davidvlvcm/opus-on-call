@@ -28,7 +28,10 @@ up Opus-quality judgment where it matters.
 /opus-on-call
 ```
 
-Manual-only — invoke it at the start of a session you want run this way. See
+Manual-only — invoke it at the start of a session you want run this way. A
+bundled `UserPromptSubmit` hook then re-states the routing rule each turn for
+that session, so the orchestrator doesn't drift back to reasoning inline as the
+context grows. Turn it off with `/opus-on-call off`. See
 [skills/opus-on-call/SKILL.md](skills/opus-on-call/SKILL.md) for the full
 routing rules.
 

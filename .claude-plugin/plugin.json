@@ -4,5 +4,18 @@
   "author": {
     "name": "davidvlvcm",
     "url": "https://github.com/davidvlvcm"
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/opus-on-call-tracker.js\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
   }
 }
