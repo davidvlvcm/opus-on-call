@@ -7,7 +7,6 @@ description: >
   decisions to short-lived Opus subagents that return a spec. Manual-only;
   invoke with /opus-on-call, ideally at the start of a session.
 model: sonnet
-disable-model-invocation: true
 ---
 
 # Sonnet Does, Opus Decides
