@@ -48,6 +48,10 @@ Route a judgment task by whether it packages:
 - **Packageable** — a self-contained prompt can carry it → **Opus subagent** (recipe below).
 - **Context-entangled** — it leans on so much live session state that packaging would lose too much → **ask the user to `/model opus`** for that burst (see Context-entangled decisions). Forcing it through a subagent yields a lossy spec and a re-escalation; don't.
 
+**Live diagnostic loops are root-cause debugging even when no single step looks like it.** A debugging *task* gets classified once, up front — but a debugging *loop* emerges turn by turn as "run one more command to test this hypothesis," and each individual turn (run a command, read output, edit a file) passes the mechanical allowlist on its own. The aggregate is the same "tricky multi-file debugging (root-cause reasoning)" this section already sends to Opus; judge the loop's shape, not each step in isolation. Concrete trigger: the second time you run a command whose only purpose is to test a hypothesis about *why something failed* (not to make forward progress on the task itself), stop before running a third probe — package the open question (what's failed so far, what you've ruled out, what you were about to try next) and delegate the rest of the investigation instead of continuing to probe inline.
+
+For this specific case, loosen the delegation target: the goal is keeping the exploratory back-and-forth — and its noisy tool output — off the main thread's `cache_read`, not necessarily upgrading the model tier. A default-model (Sonnet) subagent that can itself escalate to Opus if it hits a genuine judgment call is fine, often cheaper, and still satisfies the escalation. Spawn it as: "own this investigation, run whatever diagnostics you need in your own context, and return a root cause + fix" — model optional, effort inherited — distinct from the Opus-specific recipe below, which is for decisions you can already package without further live probing.
+
 **Delegate to a Sonnet/Haiku summarizer subagent:**
 - verbose build/test/lint runs, large diffs, big file reads, sprawling grep/CKG dumps — where the raw content isn't needed, only a verdict or short digest
 - search / codebase exploration (`Explore` or `general-purpose`)
@@ -93,6 +97,7 @@ If a decision depends on so much live session state that packaging it would lose
 This skill loads once, when you invoke it, then sits at the top of a context that only grows — so its pull fades over a long session and the failure is silent: you slide back to reasoning inline without noticing. Two backstops:
 
 - **Self-check.** Before finalizing any response where you worked through a non-trivial decision, ask: *did I just reason inline on something that belonged to the escalate default?* A yes means you've drifted — route the next such task instead of rationalizing the miss.
+- **Diagnostic-loop check.** This one fires mid-turn, not just at the end. After any turn where you ran a command purely to test a hypothesis about why something failed, ask: *is this the second such probe in a row?* If yes, that's the drift signal — don't wait for the end-of-response self-check, package the investigation and delegate it now (see Route by task).
 - **Re-injection.** This plugin ships a `UserPromptSubmit` hook that re-states the routing rule each turn while the mode is active (turned on by invoking `/opus-on-call`, cleared by `/opus-on-call off`). The self-check decays along with everything else; only re-injection from outside the growing context reliably re-anchors. Keep the hook enabled.
 
 ## Discipline
