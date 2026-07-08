@@ -27,16 +27,15 @@ const STALE_MS = 7 * 24 * 60 * 60 * 1000;
 // at the resident (expensive) rate, and bloating the reminder undercuts the
 // context-hygiene saving the whole skill exists for.
 const REMINDER =
-  "sonnet-on-call routing active. You're the resident thinker (Opus/Fable) — " +
+  "sonnet-on-call active. You're the resident thinker (Opus/Fable) — " +
   'stay inline for reasoning, architecture, and anything needing this session\'s ' +
   'continuity. Delegate mechanical execution (edits once decided, git/build/test ' +
   'loops, repetitive/batch changes) to a Sonnet subagent (Agent tool, model: sonnet). ' +
-  'Delegate noisy or bulky raw output (verbose logs, large diffs/reads, wide greps) ' +
+  'Delegate noisy or bulky output (verbose logs, large diffs/reads, wide greps) ' +
   'to a Sonnet/Haiku summarizer that returns a compact verdict, never raw content. ' +
   'Search/exploration always goes to Explore or general-purpose on Haiku/Sonnet, ' +
   'never inline. Repetitive mechanical steps: batch the rest into one delegation ' +
-  'instead of grinding through turn by turn. Lower effort does not shrink your ' +
-  'context — delegate bulk work rather than just dropping effort.';
+  'instead of grinding turn by turn.';
 
 // Session id scopes the flag. It's a server UUID, but sanitize anyway so a
 // malformed value can't escape flagDir via path separators.

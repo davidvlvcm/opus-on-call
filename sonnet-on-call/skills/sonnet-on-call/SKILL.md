@@ -31,7 +31,7 @@ You stay resident on Opus/Fable, so the dominant cost — `cache_read` on the ev
 
 **The axis is not "does this need judgment" — it's "does this need to live in my context."** Your resident model is already the best available, so capability is never the question. The question is volume: would doing this yourself dump bulk, repetitive, or disposable tokens into a context billed at the resident rate for the rest of the session? If yes, delegate regardless of how much judgment it also carries — a Sonnet subagent can exercise reasonable judgment while filtering; save your own for the parts that need your continuity or final say.
 
-When a task sits on the line, delegate. A spurious Sonnet hop is a bounded, isolated burst at cheap rates; an unnecessary chunk of mechanical noise taxes every remaining turn at the resident rate.
+When a task sits on the line, delegate.
 
 **Keep inline — do not delegate:**
 - architecture and design decisions, trade-off calls, ambiguous requirements
@@ -94,7 +94,6 @@ If a mechanical stretch is so long that even a subagent hop feels like overhead,
 This skill loads once, at invocation, then sits atop a context that only grows, and its pull fades over a long session. The failure mode is convenience — "it's just a quick edit, I'll do it myself" repeated fifty times reintroduces exactly the bulk this skill exists to keep out.
 
 - **Self-check.** Before finalizing a response where you did non-trivial mechanical or bulk work yourself, ask: *did that belong to a Sonnet delegation?* A yes means route the next one.
-- **Loop check.** After the second turn-by-turn repetition of the same kind of mechanical step, stop and batch the rest into one delegation.
 - **Re-injection.** This plugin ships a `UserPromptSubmit` hook that re-states the routing rule each turn while the mode is active (turned on by `/sonnet-on-call`, cleared by `/sonnet-on-call off`). It's the one signal from outside the growing context — keep it enabled.
 
 ## Discipline

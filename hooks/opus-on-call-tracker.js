@@ -23,14 +23,14 @@ const STALE_MS = 7 * 24 * 60 * 60 * 1000;
 // The routing rule, re-stated each turn. Kept tight — it rides every user turn,
 // and bloating the reminder undercuts the token saving the whole skill exists for.
 const REMINDER =
-  'opus-on-call routing active. Default: delegate any task carrying judgment ' +
+  'opus-on-call active. Default: delegate any task carrying judgment ' +
   '(architecture, ambiguous requirements, multi-file root-cause debugging, review/risk calls) ' +
   'to a short-lived Opus subagent (Agent tool, model: opus) that returns a spec. ' +
   'Stay inline on Sonnet only for the mechanical allowlist: edits, git/build/test, ' +
-  'applying an already-decided spec, lookups, one-shell-command filters. ' +
-  'When unsure, escalate — a spurious isolated Opus burst is cheaper than reasoning inline on Sonnet. ' +
+  'applying a decided spec, lookups, one-command filters. ' +
+  'When unsure, escalate — a spurious Opus burst is cheaper than reasoning inline on Sonnet. ' +
   'Context-entangled decision (too much live state to package) → ask the user to /model opus, not a subagent. ' +
-  'Never Opus for search or mechanical extraction.';
+  'Never Opus for search or extraction.';
 
 // Session id scopes the flag. It's a server UUID, but sanitize anyway so a
 // malformed value can't escape flagDir via path separators.
