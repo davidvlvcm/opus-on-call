@@ -12,6 +12,12 @@
       "description": "Sonnet orchestrator, Opus for reasoning only. Cuts cache_read cost by keeping the long-lived session on a cheap model.",
       "source": "./",
       "category": "productivity"
+    },
+    {
+      "name": "sonnet-on-call",
+      "description": "Opus (or Fable) orchestrator, Sonnet/Haiku for mechanical work only. Keeps the resident model on continuous top-tier reasoning by delegating execution and noisy output elsewhere.",
+      "source": "./sonnet-on-call",
+      "category": "productivity"
     }
   ]
 }

@@ -35,6 +35,16 @@ context grows. Turn it off with `/opus-on-call off`. See
 [skills/opus-on-call/SKILL.md](skills/opus-on-call/SKILL.md) for the full
 routing rules.
 
+## Related
+
+This marketplace also hosts [`sonnet-on-call`](sonnet-on-call/README.md), the
+inverse playbook: Opus (or Fable) stays resident as the main thinking agent
+for the whole session, and mechanical execution plus noisy tool output get
+delegated to short-lived Sonnet/Haiku workers instead. Install whichever
+matches what the session needs more — `opus-on-call` when raw cost matters
+most, `sonnet-on-call` when sustained top-tier reasoning matters more than
+cost.
+
 ## License
 
 MIT
